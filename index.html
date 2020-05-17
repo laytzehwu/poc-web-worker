@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>PoC Web Worker</title>
+	</head>
+	<body>
+		<header>
+			<h1>PoC Web Worker</h1>
+		</header>
+		<section>
+			<button onclick="run()">Run</button>
+			<button onclick="clearOutput()">Clear</button>
+		</section>
+		<section>
+			<div id="output"></div>
+		</section>
+	</body>
+<script src="./js/thread.js"></script>
+<script>
+var outputDiv = document.getElementById("output");
+function addLine(msg) {
+	outputDiv.innerHTML += "<br />";
+	outputDiv.innerHTML += new Date().toString();
+	outputDiv.innerHTML += " " + msg;
+}
+
+function updateResult(event) {
+	addLine(event.data);
+}
+
+function clearOutput() {
+	outputDiv.innerHTML = "";
+}
+
+// ********************************************************* Functions only serve for file protocol
+function makeWorkerA() {
+	var LayThread = function (name) {
+		this.name = name;
+		
+		this.doHeavyJob = function () {
+			postMessage(this.name + " start");
+			for(var i = 0; i < 99999999; i ++) i ++;
+			postMessage(this.name + " end");
+		}
+	}
+	var ta = new LayThread('A');
+	ta.doHeavyJob();	
+}
+
+function makeWorkerB() {
+	var LayThread = function (name) {
+		this.name = name;
+		
+		this.doHeavyJob = function () {
+			postMessage(this.name + " start");
+			for(var i = 0; i < 99999999; i ++) i ++;
+			postMessage(this.name + " end");
+		}
+	}
+	var ta = new LayThread('B');
+	ta.doHeavyJob();	
+}
+// ********************************************************* End of Functions only serve for file protocol
+
+function run() {
+	if (window.Worker) {
+		addLine('Run ...');
+		addLine('Create worker A ...');
+		//var workerA = new Worker('js/thread-a.js');
+		// Because of running at file protocol. It can simply new Worker('js/thread-a.js');
+		var workerA = new Worker(URL.createObjectURL(new Blob(["("+makeWorkerA.toString()+")()"], {type: 'text/javascript'})));
+		workerA.onmessage = updateResult;
+		addLine('Create worker B ...');
+		//var workerB = new Worker('js/thread-b.js');
+		// Because of running at file protocol. It can simply new Worker('js/thread-b.js');
+		var workerB = new Worker(URL.createObjectURL(new Blob(["("+makeWorkerB.toString()+")()"], {type: 'text/javascript'})));
+		workerB.onmessage = updateResult;
+	} else {
+		addLine('Worker is not supported');
+	}
+}
+</script>
+</html>
