@@ -34,29 +34,14 @@ function clearOutput() {
 
 // ********************************************************* Functions only serve for file protocol
 function makeWorkerA() {
-	var LayThread = function (name) {
-		this.name = name;
-		
-		this.doHeavyJob = function () {
-			postMessage(this.name + " start");
-			for(var i = 0; i < 99999999; i ++) i ++;
-			postMessage(this.name + " end");
-		}
-	}
+	postMessage(location.toString());
+	importScripts('file:///C:/projects/poc-web-worker/js/thread.js');
 	var ta = new LayThread('A');
 	ta.doHeavyJob();	
 }
 
 function makeWorkerB() {
-	var LayThread = function (name) {
-		this.name = name;
-		
-		this.doHeavyJob = function () {
-			postMessage(this.name + " start");
-			for(var i = 0; i < 99999999; i ++) i ++;
-			postMessage(this.name + " end");
-		}
-	}
+	importScripts('file:///C:/projects/poc-web-worker/js/thread.js');
 	var ta = new LayThread('B');
 	ta.doHeavyJob();	
 }
